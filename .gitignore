@@ -1,0 +1,11 @@
+.git
+.DS_Store
+*.log
+.ipynb_checkpoints
+**/data/**
+**/home/**
+!*.gitkeep
+*.pem
+*.csr
+*.crt
+cluster-keys.json

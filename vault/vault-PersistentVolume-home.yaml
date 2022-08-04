@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: vault-home-volume
+  namespace: default
+spec:
+  storageClassName: local-path
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/Users/olivier/Documents/GitHub/kube-vault-dockerhub/volume/home"
+  capacity:
+    storage: 1Gi
+  claimRef:
+    name: vault-home-volume-claim
+    namespace: default
