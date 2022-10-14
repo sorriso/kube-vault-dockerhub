@@ -1,0 +1,16 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: vault-issuer-kube
+  namespace: default
+spec:
+  vault:
+    server: http://127.0.0.1:52100
+    path: pki/sign/pki_kube-role
+    auth:
+      kubernetes:
+        mountPath: /v1/auth/kubernetes
+        role: pki_kube-role
+        secretRef:
+          name: issuer-kube-token
+          key: token

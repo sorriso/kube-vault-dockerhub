@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault-service
+  namespace: vault-ns
+  labels:
+    app: vault
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8200
+      targetPort: 8200
+      protocol: TCP
+    - name: https-internal
+      port: 8201
+      targetPort: 8201
+      protocol: TCP
+    - name: https
+      port: 8300
+      targetPort: 8300
+      protocol: TCP
+  selector:
+    app: vault
+  publishNotReadyAddresses: false
+#  selector:
+#    app: vault
+#    # vault-active is one of the dynamic labels managed by vault’s “Kubernetes service registration”
+#    vault-active: "true"

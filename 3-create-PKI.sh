@@ -9,18 +9,27 @@ export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
 
 export VAULT_TOKEN=$(cat ./cluster-keys.json | grep root_token | awk '{print $2}' | tr -d '"')
 
-export VAULT_ADDR=http://127.0.0.1:52100
+export VAULT_ADDR=http://localhost:52100
+#export VAULT_ADDR=http://vault.kube.local
 
 
 
+echo ""
+echo "Enable CORS"
+echo ""
+
+
+
+curl --header "X-Vault-Token: $VAULT_TOKEN" \
+  --request POST \
+   --data '{"allowed_origins": "*", "allowed_headers": "X-Custom-Header"}' \
+  $VAULT_ADDR/v1/sys/config/cors | jq
 
 
 
 echo ""
 echo "Building ROOT CA"
 echo ""
-
-
 
 
 
@@ -221,7 +230,7 @@ echo ""
 curl --header "X-Vault-Token: $VAULT_TOKEN" \
     --request POST \
     --data '{"common_name": "test.kube.local", "ttl": "24h"}' \
-    $VAULT_ADDR/v1/pki_kube/issue/pki_kube-role | jq
+    $VAULT_ADDR/v1/pki_kube/issue/pki_kube-role | jq > test.kube.local.json
 
 
 
@@ -342,4 +351,9 @@ echo ""
 curl --header "X-Vault-Token: $VAULT_TOKEN" \
     --request POST \
     --data '{"common_name": "test.cluster.local", "ttl": "24h"}' \
-    $VAULT_ADDR/v1/pki_cluster/issue/pki_cluster-role | jq
+    $VAULT_ADDR/v1/pki_cluster/issue/pki_cluster-role | jq > test.cluster.local.json
+
+rm -f *.crt
+rm -f *.csr
+rm -f *.pem
+rm -f test*.json
