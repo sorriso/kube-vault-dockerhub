@@ -12,7 +12,7 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: "/Users/olivier/Documents/GitHub/kube-vault-dockerhub/volume/data"
+    path: "/Users/sorriso/Documents/GitHub/kube-vault-dockerhub/volume/data"
   capacity:
     storage: 1Gi
   claimRef:
