@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vault-nginx-deployment
+  namespace: vault-ns
+  labels:
+    app: vault-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vault-nginx
+  template:
+    metadata:
+      labels:
+        app: vault-nginx
+    spec:
+      containers:
+      - name: vault-nginx
+        image: nginx:1.23.2-alpine
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 80
+            protocol: TCP
+          - containerPort: 443
+            protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 10m
+            memory: 128Mi
+        volumeMounts:
+          - name: nginx-configuration
+            mountPath: /etc/nginx/nginx.conf
+            subPath: NGINX_CONF_KEY
+          - name: application-configuration
+            mountPath: /etc/nginx/nginx.d/app.conf
+            subPath: APP_CONF_KEY
+      volumes:
+        - name: nginx-configuration
+          secret:
+            secretName: vault-nginx-secret
+        - name: application-configuration
+          secret:
+            secretName: vault-nginx-secret

@@ -2,7 +2,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRouteTCP
 metadata:
   name: nexus-nginx-ingress-https
-  namespace: devops
+  namespace: vault-ns
   labels:
     app: nexus-nginx
   annotations:
@@ -12,9 +12,9 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: HostSNI(`nexus.kube.local`)
+    - match: HostSNI(`vault.kube.local`)
       services:
-        - name: nexus-nginx-service
-          port: 9999
+        - name: vault-nginx-service
+          port: 443
   tls:
     passthrough: true

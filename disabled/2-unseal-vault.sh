@@ -5,8 +5,7 @@ export VAULT_TOKEN=$(cat ./cluster-keys.json | jq -r ".root_token" )
 echo $VAULT_TOKEN
 kubectl exec -n vault-ns vault-0 -- vault login $VAULT_TOKEN
 
-export VAULT_ADDR=http://localhost:52100
-#export VAULT_ADDR=https://vault.kube.local
+export VAULT_ADDR=http://vault.kube.local
 
 FILE=./cluster-keys.json
 if ! [ -f "$FILE" ];
@@ -21,10 +20,10 @@ echo "unsealing vault"
 echo ""
 echo ""
 
-for srv in $(seq 0 1)
+for srv in $(seq 0 0)
     do
     echo "unsealing server : vault-$srv"
-    for idx in $(seq 1 3)
+    for idx in $(seq 1 1)
         do
             echo "unseal key index : $idx"
             VAULT_UNSEAL_KEY=$(cat ./cluster-keys.json | jq -r ".unseal_keys_b64[]" | sed -n "$idx"p )

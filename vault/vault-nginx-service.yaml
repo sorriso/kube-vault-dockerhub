@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault-nginx-service
+  namespace: vault-ns
+spec:
+  selector:
+    app: vault-nginx
+  ports:
+    - name: vault-nginx-http
+      protocol: TCP
+      port: 80
+      targetPort: 80
+    - name: vault-nginx-https
+      protocol: TCP
+      port: 443
+      targetPort: 443

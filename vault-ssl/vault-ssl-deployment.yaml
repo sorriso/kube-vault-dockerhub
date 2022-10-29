@@ -1,4 +1,3 @@
-# kubectl -n vault-ns exec -it vault-0 -- /bin/sh
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -97,7 +96,7 @@ spec:
               memory: 512Mi
           readinessProbe:
             tcpSocket:
-              port: 8200
+              port: 8300
             failureThreshold: 2
             initialDelaySeconds: 5
             periodSeconds: 30
@@ -105,7 +104,7 @@ spec:
             timeoutSeconds: 5
           livenessProbe:
             tcpSocket:
-              port: 8200
+              port: 8300
             failureThreshold: 6
             initialDelaySeconds: 10
             periodSeconds: 30
@@ -118,12 +117,8 @@ spec:
               mountPath: /vault/config
             - name: vault-home-volume
               mountPath: /home/vault
-            - name: vault-pem
-              mountPath: /cert/domain.pem
-              subPath: SSL_CERT_BUNDLE
-            - name: vault-privkey
-              mountPath: /cert/domain.key
-              subPath: SSL_KEY
+            - name: pod-cert
+              mountPath: "/cert"
       volumes:
         - name: vault-data-volume
           persistentVolumeClaim:
@@ -137,9 +132,20 @@ spec:
             items:
             - key: extraconfig-from-values.hcl
               path: extraconfig-from-values.hcl
-        - name: vault-pem
-          secret:
-            secretName: vault-secret
-        - name: vault-privkey
-          secret:
-            secretName: vault-secret
+        - name: pod-cert
+          csi:
+            driver: csi.cert-manager.io
+            readOnly: true
+            volumeAttributes:
+                csi.cert-manager.io/issuer-kind: ClusterIssuer
+                csi.cert-manager.io/issuer-name: vault-cluster-clusterissuer
+                csi.cert-manager.io/issuer-group: cert-manager.io
+                csi.cert-manager.io/common-name: vault.cluster.local
+                csi.cert-manager.io/dns-names: ${POD_NAME}.${POD_NAMESPACE}.pod.cluster.local
+                csi.cert-manager.io/duration: 12h
+                csi.cert-manager.io/renew-before: 4h
+                csi.cert-manager.io/is-ca: "false"
+                csi.cert-manager.io/key-usages: digital signature,key encipherment,server auth,client auth
+                csi.cert-manager.io/certificate-file: domain.pem
+                csi.cert-manager.io/privatekey-file: domain.key
+                csi.cert-manager.io/ca-file: ca.pem

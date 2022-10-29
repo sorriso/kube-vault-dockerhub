@@ -17,6 +17,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: vault-service
+            name: vault-nginx-service
             port:
-              number: 8200
+              number: 80
