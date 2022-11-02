@@ -176,4 +176,6 @@ echo ""
 echo "Get issuer list"
 echo ""
 
+sleep 5
+
 kubectl get ClusterIssuer -n vault-ns -o wide

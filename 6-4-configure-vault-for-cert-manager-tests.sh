@@ -1,10 +1,5 @@
 #!/bin/bash
 
-rm -f ./payload*.json
-rm -f ./*.pem
-rm -f ./*.crt
-rm -f ./*.csr
-
 echo ""
 echo "Testing cert only generation"
 echo ""

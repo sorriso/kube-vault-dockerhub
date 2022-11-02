@@ -12,7 +12,7 @@ spec:
     auth:
       appRole:
         path: approle
-        roleId: 8f0497a3-87c1-c4ed-1ef6-7c3872282c6c
+        roleId: a614bda8-1506-d9f4-13b2-3166bbf8c7ab
         secretRef:
           name: cert-manager-secret-approle-kube
           key: SECRET_ID

@@ -38,6 +38,12 @@ spec:
           - name: application-configuration
             mountPath: /etc/nginx/nginx.d/app.conf
             subPath: APP_CONF_KEY
+          - name: vault-pem
+            mountPath: /etc/nginx/ssl/ext/cert-ext.pem
+            subPath: SSL_CERT_BUNDLE
+          - name: vault-privkey
+            mountPath: /etc/nginx/ssl/ext/cert-ext.key
+            subPath: SSL_KEY
       volumes:
         - name: nginx-configuration
           secret:
@@ -45,3 +51,9 @@ spec:
         - name: application-configuration
           secret:
             secretName: vault-nginx-secret
+        - name: vault-pem
+          secret:
+            secretName: vault-secret
+        - name: vault-privkey
+          secret:
+            secretName: vault-secret

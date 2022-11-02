@@ -12,7 +12,7 @@ spec:
     auth:
       appRole:
         path: approle
-        roleId: ff94386b-c60a-d8b3-02da-c7870bbad5ca
+        roleId: 41d225f8-b644-61c1-4a4c-79eb2b02d297
         secretRef:
           name: cert-manager-secret-approle-cluster
           key: SECRET_ID

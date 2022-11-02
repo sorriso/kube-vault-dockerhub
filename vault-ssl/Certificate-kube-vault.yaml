@@ -1,11 +1,11 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: vault-kube-tls
+  name: vault-nginx-tls
   namespace: vault-ns
 spec:
   # Secret names are always required.
-  secretName: vault-kube-tls
+  secretName: vault-nginx-tls
 
   # secretTemplate is optional. If set, these annotations and labels will be
   # copied to the Secret named example-com-tls. These labels and annotations will
@@ -15,9 +15,9 @@ spec:
   secretTemplate:
     annotations:
       my-secret-annotation-1: "vault"
-      my-secret-annotation-2: "kube"
+      my-secret-annotation-2: "nginx"
     labels:
-      my-secret-label: "vault-kube-tls"
+      my-secret-label: "vault-nginx-kube-tls"
 
   duration: 24h
   renewBefore: 8h

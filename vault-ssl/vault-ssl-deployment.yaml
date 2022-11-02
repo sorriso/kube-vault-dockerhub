@@ -7,7 +7,9 @@ metadata:
     app: vault
 spec:
   serviceName: vault-internal
-  replicas: 1
+  replicas: 3
+  updateStrategy:
+    type: RollingUpdate
   selector:
     matchLabels:
       app: vault

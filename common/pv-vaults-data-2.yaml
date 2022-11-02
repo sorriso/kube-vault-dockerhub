@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-vaults-data-2
+spec:
+  storageClassName: longhorn
+  volumeMode: Filesystem
+  capacity:
+    storage: 250Mi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    namespace: vault-ns
+    name: pvc-vaults-data-vault-2
+  csi:
+    driver: driver.longhorn.io
+    fsType: ext4
+    volumeAttributes:
+      numberOfReplicas: '3'
+      staleReplicaTimeout: '2880'
+    volumeHandle: pvc-9a3b189b-204e-4bf4-a610-533b674fc9b7

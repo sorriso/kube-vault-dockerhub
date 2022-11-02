@@ -8,7 +8,9 @@ metadata:
     app: vault
 spec:
   serviceName: vault-internal
-  replicas: 1
+  replicas: 3
+  updateStrategy:
+    type: RollingUpdate
   selector:
     matchLabels:
       app: vault
@@ -112,12 +114,12 @@ spec:
             successThreshold: 1
             timeoutSeconds: 5
           volumeMounts:
-            - name: vault-data-volume
+            - name: pvc-vaults-data
               mountPath: /vault/data
+            - name: pvc-vaults-home
+              mountPath: /home/vault
             - name: vault-config-volume
               mountPath: /vault/config
-            - name: vault-home-volume
-              mountPath: /home/vault
             - name: vault-pem
               mountPath: /cert/domain.pem
               subPath: SSL_CERT_BUNDLE
@@ -125,12 +127,6 @@ spec:
               mountPath: /cert/domain.key
               subPath: SSL_KEY
       volumes:
-        - name: vault-data-volume
-          persistentVolumeClaim:
-            claimName: vault-data-volume-claim
-        - name: vault-home-volume
-          persistentVolumeClaim:
-            claimName: vault-home-volume-claim
         - name: vault-config-volume
           configMap:
             name: vault-configmap
@@ -143,3 +139,26 @@ spec:
         - name: vault-privkey
           secret:
             secretName: vault-secret
+  volumeClaimTemplates:
+  - metadata:
+      name: pvc-vaults-data
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 250Mi
+  - metadata:
+      name: pvc-vaults-home
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 250Mi
+#        - name: vault-data-volume
+#          persistentVolumeClaim:
+#            claimName: pvc-vaults-data
+#        - name: vault-home-volume
+#          persistentVolumeClaim:
+#            claimName: pvc-vaults-home

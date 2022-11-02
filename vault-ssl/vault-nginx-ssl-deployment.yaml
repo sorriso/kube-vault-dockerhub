@@ -39,16 +39,16 @@ spec:
             mountPath: /etc/nginx/nginx.d/app.conf
             subPath: APP_CONF_KEY
           - name: vault-pem
-            mountPath: /etc/nginx/ssl/cert-ext.pem
+            mountPath: /etc/nginx/ssl/ext/cert-ext.pem
             subPath: tls.crt
           - name: vault-privkey
-            mountPath: /etc/nginx/ssl/cert-ext.key
+            mountPath: /etc/nginx/ssl/ext/cert-ext.key
             subPath: tls.key
           - name: vault-ca
-            mountPath: /etc/nginx/ssl/ca-ext.key
+            mountPath: /etc/nginx/ssl/ext/ca-ext.key
             subPath: ca.crt
           - name: pod-cert
-            mountPath: "/etc/nginx/ssl"
+            mountPath: "/etc/nginx/ssl/int/"
       volumes:
         - name: nginx-configuration
           secret:
@@ -58,13 +58,13 @@ spec:
             secretName: vault-nginx-secret
         - name: vault-pem
           secret:
-            secretName: vault-kube-cert
+            secretName: vault-nginx-tls
         - name: vault-privkey
           secret:
-            secretName: vault-kube-cert
+            secretName: vault-nginx-tls
         - name: vault-ca
           secret:
-            secretName: vault-kube-cert
+            secretName: vault-nginx-tls
         - name: pod-cert
           csi:
             driver: csi.cert-manager.io

@@ -1,7 +1,7 @@
 apiVersion: "v1"
 kind: "PersistentVolumeClaim"
 metadata:
-  name: vault-data-volume-claim
+  name: pvc-vaults-home-vault-0
   namespace: vault-ns
   labels:
     app: vault
@@ -11,4 +11,4 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 250Mi

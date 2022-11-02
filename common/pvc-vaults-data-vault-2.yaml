@@ -1,0 +1,14 @@
+apiVersion: "v1"
+kind: "PersistentVolumeClaim"
+metadata:
+  name: pvc-vaults-data-vault-2
+  namespace: vault-ns
+  labels:
+    app: vault
+spec:
+  storageClassName: longhorn
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 250Mi
