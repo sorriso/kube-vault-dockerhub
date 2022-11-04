@@ -5,6 +5,7 @@ metadata:
   namespace: vault-ns
   labels:
     app: vault
+    layer: application
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole

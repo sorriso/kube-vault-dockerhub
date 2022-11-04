@@ -1,10 +1,11 @@
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRouteTCP
 metadata:
-  name: nexus-nginx-ingress-https
+  name: vault-nginx-ingress-https
   namespace: vault-ns
   labels:
-    app: nexus-nginx
+    app: vault-nginx
+    layer: reverseproxy
   annotations:
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/custom-response-headers: "Access-Control-Allow-Origin:*||Access-Control-Allow-Methods:GET,POST,OPTIONS||Access-Control-Allow-Headers:DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range||Access-Control-Expose-Headers:Content-Length,Content-Range"
@@ -15,6 +16,6 @@ spec:
     - match: HostSNI(`vault.kube.local`)
       services:
         - name: vault-nginx-service
-          port: 443
+          port: 8300
   tls:
     passthrough: true

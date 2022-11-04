@@ -4,7 +4,8 @@ metadata:
   name: vault-nginx-deployment
   namespace: vault-ns
   labels:
-    app: vault-nginx
+    app: nexus-nginx
+    layer: reverseproxy
 spec:
   replicas: 1
   selector:
@@ -20,8 +21,6 @@ spec:
         image: nginx:1.23.2-alpine
         imagePullPolicy: Always
         ports:
-          - containerPort: 80
-            protocol: TCP
           - containerPort: 443
             protocol: TCP
         resources:
@@ -31,29 +30,39 @@ spec:
           requests:
             cpu: 10m
             memory: 128Mi
+
         volumeMounts:
+
           - name: nginx-configuration
             mountPath: /etc/nginx/nginx.conf
             subPath: NGINX_CONF_KEY
+
           - name: application-configuration
             mountPath: /etc/nginx/nginx.d/app.conf
             subPath: APP_CONF_KEY
+
           - name: vault-pem
             mountPath: /etc/nginx/ssl/ext/cert-ext.pem
             subPath: SSL_CERT_BUNDLE
+            
           - name: vault-privkey
             mountPath: /etc/nginx/ssl/ext/cert-ext.key
             subPath: SSL_KEY
+
       volumes:
+
         - name: nginx-configuration
           secret:
             secretName: vault-nginx-secret
+
         - name: application-configuration
           secret:
             secretName: vault-nginx-secret
+
         - name: vault-pem
           secret:
-            secretName: vault-secret
+            secretName: vault-nginx-secret-tls
+
         - name: vault-privkey
           secret:
-            secretName: vault-secret
+            secretName: vault-nginx-secret-tls

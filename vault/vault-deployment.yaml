@@ -6,6 +6,7 @@ metadata:
   namespace: vault-ns
   labels:
     app: vault
+    layer: application
 spec:
   serviceName: vault-internal
   replicas: 3
@@ -113,7 +114,9 @@ spec:
             periodSeconds: 30
             successThreshold: 1
             timeoutSeconds: 5
+
           volumeMounts:
+
             - name: pvc-vaults-data
               mountPath: /vault/data
             - name: pvc-vaults-home
@@ -127,38 +130,40 @@ spec:
               mountPath: /cert/domain.key
               subPath: SSL_KEY
       volumes:
+
         - name: vault-config-volume
           configMap:
             name: vault-configmap
             items:
             - key: extraconfig-from-values.hcl
               path: extraconfig-from-values.hcl
+
         - name: vault-pem
           secret:
-            secretName: vault-secret
+            secretName: vault-secret-tls
+
         - name: vault-privkey
           secret:
-            secretName: vault-secret
+            secretName: vault-secret-tls
+
   volumeClaimTemplates:
+
   - metadata:
       name: pvc-vaults-data
     spec:
       accessModes:
         - ReadWriteOnce
+      storageClassName: longhorn-retain
       resources:
         requests:
           storage: 250Mi
+          
   - metadata:
       name: pvc-vaults-home
     spec:
       accessModes:
         - ReadWriteOnce
+      storageClassName: longhorn-retain
       resources:
         requests:
           storage: 250Mi
-#        - name: vault-data-volume
-#          persistentVolumeClaim:
-#            claimName: pvc-vaults-data
-#        - name: vault-home-volume
-#          persistentVolumeClaim:
-#            claimName: pvc-vaults-home

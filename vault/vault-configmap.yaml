@@ -5,6 +5,7 @@ metadata:
   namespace: vault-ns
   labels:
     app: vault
+    layer: application
 data:
   extraconfig-from-values.hcl: |-
     disable_cache = true

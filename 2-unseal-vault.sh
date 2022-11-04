@@ -6,7 +6,15 @@ export VAULT_TOKEN=$(cat ./Initial_root_token.txt)
 echo $VAULT_TOKEN
 kubectl exec -n vault-ns vault-0 -- vault login $VAULT_TOKEN
 
-export VAULT_ADDR=http://vault.kube.local
+#
+# to tune kube cluster DNS as it is working locally
+# go in "storage / configMap"
+# edit YAML of "ConfigMap: coredns"
+# insert the line below just after "ready"
+#   rewrite name vault.kube.com vault-service.vault-ns.svc.cluster.local
+# then go in "workload / pods" and delete "coredns-xxxx" pod in "Namespace: kube-system"
+
+export VAULT_ADDR=https://vault.kube.local
 
 FILE=./cluster-keys.json
 if ! [ -f "$FILE" ];
