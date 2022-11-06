@@ -16,6 +16,6 @@ spec:
     - match: HostSNI(`vault.kube.local`)
       services:
         - name: vault-nginx-service
-          port: 8300
+          port: 443
   tls:
     passthrough: true

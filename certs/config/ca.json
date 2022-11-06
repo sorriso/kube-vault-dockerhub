@@ -1,0 +1,23 @@
+{
+    "CN": "server.vault-ns.cluster.local",
+    "hosts": [
+      "consul.kube.local",
+      "consul-nginx-service.vault-ns.svc.cluster.local",
+      "consul-service.vault-ns.svc.cluster.local",
+      "server.vault-ns.cluster.local",
+      "127.0.0.1"
+    ],
+    "key": {
+      "algo": "rsa",
+      "size": 2048
+    },
+    "names": [
+      {
+        "C": "FR",
+        "L": "TLS",
+        "O": "WorldCompany",
+        "OU": "CA",
+        "ST": "ROOT"
+      }
+    ]
+  }

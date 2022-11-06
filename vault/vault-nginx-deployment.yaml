@@ -4,7 +4,7 @@ metadata:
   name: vault-nginx-deployment
   namespace: vault-ns
   labels:
-    app: nexus-nginx
+    app: vault-nginx
     layer: reverseproxy
 spec:
   replicas: 1
@@ -20,16 +20,40 @@ spec:
       - name: vault-nginx
         image: nginx:1.23.2-alpine
         imagePullPolicy: Always
+
         ports:
+
           - containerPort: 443
             protocol: TCP
+
         resources:
+
           limits:
             cpu: 500m
             memory: 512Mi
           requests:
             cpu: 10m
             memory: 128Mi
+
+        readinessProbe:
+
+          tcpSocket:
+            port: 443
+          failureThreshold: 2
+          initialDelaySeconds: 5
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 5
+
+        livenessProbe:
+
+          tcpSocket:
+            port: 443
+          failureThreshold: 6
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 5
 
         volumeMounts:
 
@@ -44,7 +68,7 @@ spec:
           - name: vault-pem
             mountPath: /etc/nginx/ssl/ext/cert-ext.pem
             subPath: SSL_CERT_BUNDLE
-            
+
           - name: vault-privkey
             mountPath: /etc/nginx/ssl/ext/cert-ext.key
             subPath: SSL_KEY

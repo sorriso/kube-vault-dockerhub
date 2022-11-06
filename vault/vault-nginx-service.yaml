@@ -4,7 +4,7 @@ metadata:
   name: vault-nginx-service
   namespace: vault-ns
   labels:
-    app: nexus-nginx
+    app: vault-nginx
     layer: reverseproxy
 spec:
   selector:
@@ -12,5 +12,5 @@ spec:
   ports:
     - name: vault-nginx-https
       protocol: TCP
-      port: 8300
-      targetPort: 8300
+      port: 443
+      targetPort: 443

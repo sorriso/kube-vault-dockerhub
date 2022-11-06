@@ -1,0 +1,29 @@
+#san.cnf
+#
+[ req ]
+default_bits       = 2048
+default_keyfile    = root-ca.key
+distinguished_name = req_distinguished_name
+req_extensions     = req_ext
+prompt             = no
+x509_extensions    = req_extensions
+string_mask        = utf8only
+#
+[ req_extensions ]
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always, issuer
+basicConstraints       = CA:TRUE
+keyUsage               = keyAgreement, keyCertSign, cRLSign
+#
+[ req_distinguished_name ]
+countryName            = FR
+stateOrProvinceName    = 31
+localityName           = TLS
+organizationName       = WordCompany
+organizationalUnitName = ME
+commonName             = ROOT-CA
+#
+[ req_ext ]
+subjectAltName = @alt_names
+[alt_names]
+DNS.1   = ROOT-CA.kube.local
