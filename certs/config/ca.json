@@ -2,9 +2,9 @@
     "CN": "server.vault-ns.cluster.local",
     "hosts": [
       "consul.kube.local",
-      "consul-nginx-service.vault-ns.svc.cluster.local",
-      "consul-service.vault-ns.svc.cluster.local",
-      "server.vault-ns.cluster.local",
+      "vault-consul-nginx-service.vault-ns.svc.cluster.local",
+      "vault-consul-service.vault-ns.svc.cluster.local",
+      "consul.vault-ns.cluster.local",
       "127.0.0.1"
     ],
     "key": {

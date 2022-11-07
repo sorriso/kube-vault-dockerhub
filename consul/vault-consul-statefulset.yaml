@@ -28,7 +28,7 @@ spec:
       securityContext:
         fsGroup: 1000
       containers:
-      - name: consul-server
+      - name: consul
         image: consul:1.13.3
 
         env:
@@ -73,7 +73,9 @@ spec:
         ports:
 
         - containerPort: 8500
-          name: api
+          name: ui-http
+        - containerPort: 8501
+          name: ui-https
         - containerPort: 8600
           name: dns-udp
           protocol: UDP

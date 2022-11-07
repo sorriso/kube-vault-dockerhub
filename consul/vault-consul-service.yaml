@@ -7,11 +7,17 @@ metadata:
     app: consul
     layer: database
 spec:
+  selector:
+    app: consul
+    role: server
   clusterIP: None
   ports:
-    - name: http
+    - name: ui-http
       port: 8500
       targetPort: 8500
+    - name: ui-https
+      port: 8501
+      targetPort: 8501
     - name: https
       port: 8443
       targetPort: 8443

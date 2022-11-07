@@ -77,16 +77,16 @@ spec:
 
         - name: nginx-configuration
           secret:
-            secretName: vault-nginx-secret
+            secretName: vault-consul-nginx-secret
 
         - name: application-configuration
           secret:
-            secretName: vault-nginx-secret
+            secretName: vault-consul-nginx-secret
 
         - name: vault-pem
           secret:
-            secretName: vault-nginx-secret-tls
+            secretName: vault-consul-nginx-secret-tls
 
         - name: vault-privkey
           secret:
-            secretName: vault-nginx-secret-tls
+            secretName: vault-consul-nginx-secret-tls
