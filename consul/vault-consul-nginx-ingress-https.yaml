@@ -1,0 +1,21 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: vault-consul-nginx-ingress-https
+  namespace: vault-ns
+  labels:
+    app: vault-consul-nginx
+    layer: reverseproxy
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/custom-response-headers: "Access-Control-Allow-Origin:*||Access-Control-Allow-Methods:GET,POST,OPTIONS||Access-Control-Allow-Headers:DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range||Access-Control-Expose-Headers:Content-Length,Content-Range"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: HostSNI(`consul.kube.local`)
+      services:
+        - name: vault-consul-nginx-service
+          port: 443
+  tls:
+    passthrough: true

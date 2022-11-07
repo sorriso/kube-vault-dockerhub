@@ -9,4 +9,4 @@
 *.csr
 *.crt
 cluster-keys.json
-consul
+certs/consul

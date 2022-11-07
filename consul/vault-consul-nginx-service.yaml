@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault-consul-nginx-service
+  namespace: vault-ns
+  labels:
+    app: vault-consul-nginx
+    layer: reverseproxy
+spec:
+  selector:
+    app: vault-consul-nginx
+  ports:
+    - name: vault-consul-nginx-https
+      protocol: TCP
+      port: 443
+      targetPort: 443

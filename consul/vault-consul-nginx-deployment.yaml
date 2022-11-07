@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vault-consul-nginx-deployment
+  namespace: vault-ns
+  labels:
+    app: vault-consul-nginx
+    layer: reverseproxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vault-consul-nginx
+  template:
+    metadata:
+      labels:
+        app: vault-consul-nginx
+    spec:
+      containers:
+      - name: vault-consul-nginx
+        image: nginx:1.23.2-alpine
+        imagePullPolicy: Always
+
+        ports:
+
+          - containerPort: 443
+            protocol: TCP
+
+        resources:
+
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 10m
+            memory: 128Mi
+
+        readinessProbe:
+
+          tcpSocket:
+            port: 443
+          failureThreshold: 2
+          initialDelaySeconds: 5
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 5
+
+        livenessProbe:
+
+          tcpSocket:
+            port: 443
+          failureThreshold: 6
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 5
+
+        volumeMounts:
+
+          - name: nginx-configuration
+            mountPath: /etc/nginx/nginx.conf
+            subPath: NGINX_CONF_KEY
+
+          - name: application-configuration
+            mountPath: /etc/nginx/nginx.d/app.conf
+            subPath: APP_CONF_KEY
+
+          - name: vault-pem
+            mountPath: /etc/nginx/ssl/ext/cert-ext.pem
+            subPath: SSL_CERT_BUNDLE
+
+          - name: vault-privkey
+            mountPath: /etc/nginx/ssl/ext/cert-ext.key
+            subPath: SSL_KEY
+
+      volumes:
+
+        - name: nginx-configuration
+          secret:
+            secretName: vault-nginx-secret
+
+        - name: application-configuration
+          secret:
+            secretName: vault-nginx-secret
+
+        - name: vault-pem
+          secret:
+            secretName: vault-nginx-secret-tls
+
+        - name: vault-privkey
+          secret:
+            secretName: vault-nginx-secret-tls
