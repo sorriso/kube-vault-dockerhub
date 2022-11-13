@@ -1,0 +1,12 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: vault-ns
+  name: vault-role-register
+  labels:
+    app: vault
+    layer: rbac
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "update", "patch"]

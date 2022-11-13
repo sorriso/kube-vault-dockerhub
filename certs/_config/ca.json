@@ -1,0 +1,22 @@
+{
+    "CN": "Custom local root CA",
+    "key":
+        {
+            "algo": "rsa",
+            "size": 2048
+        },
+    "names":
+        [
+            {
+            "C": "FR",
+            "L": "TLS",
+            "O": "WorldCompany",
+            "OU": "CA",
+            "ST": "ROOT"
+            }
+        ],
+    "ca":
+        {
+        "expiry": "87600h"
+        }
+}

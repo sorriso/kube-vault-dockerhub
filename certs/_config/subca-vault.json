@@ -1,0 +1,26 @@
+{
+  "CN": "vault",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names":
+      [
+          {
+          "C": "FR",
+          "L": "TLS",
+          "O": "WorldCompany",
+          "OU": "subCA",
+          "ST": "cert"
+          }
+      ],
+  "hosts":
+      [
+          "vault.kube.local",
+          "vault-nginx-service.vault-ns.svc.cluster.local",
+          "vault-service.vault-ns.svc.cluster.local",
+          "vault.vault-ns.cluster.local",
+          "vault-service",
+          "127.0.0.1"
+      ]
+}

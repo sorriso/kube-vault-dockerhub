@@ -18,8 +18,8 @@ spec:
     spec:
       containers:
       - name: vault-consul-nginx
-        image: nginx:1.23.2-alpine
-        imagePullPolicy: Always
+        image: l_nginx:latest
+        imagePullPolicy: Never
 
         ports:
 

@@ -28,10 +28,29 @@ data:
         tls_prefer_server_cipher_suites = true
     }
 
-    storage "file" {
-      path = "/vault/data"
+    #storage "file" {
+    #  path = "/vault/data"
+    #}
+
+    service_registration "kubernetes" {
+      address        = "vault-consul-service:8500",
+      namespace      = "vault-ns",
+      pod_name       = "$VAULT_K8S_POD_NAME"
+    }
+
+    storage "consul" {
+          address = "vault-consul-service:8500",
+          path    = "vault/",
+          disable_registration = true,
+          ha_enable = true
     }
 
     max_lease_ttl = "10h"
     default_lease_ttl = "10h"
 #    service_registration "kubernetes" {}
+
+    #storage "consul"
+    #  scheme: "https"
+    #  tls_ca_file: /etc/tls/ca.pem
+    #  tls_cert_file: /etc/tls/consul.pem
+    #  tls_key_file: /etc/tls/consul-key.pem

@@ -1,0 +1,47 @@
+{
+  "signing": {
+    "default": {
+      "expiry": "8760h"
+    },
+    "profiles": {
+      "subca": {
+        "expiry": "8760h",
+        "usages": [
+            "signing",
+            "digital signature",
+            "key encipherment",
+            "cert sign",
+            "crl sign",
+            "server auth",
+            "client auth"
+        ],
+        "expiry": "8760h",
+        "ca_constraint": {
+            "is_ca": true,
+            "max_path_len": 0,
+            "max_path_len_zero": true
+        }
+      },
+      "consul": {
+        "usages": [
+            "signing",
+            "digital signature",
+            "key encipherment",
+            "client auth",
+            "server auth"
+        ],
+        "expiry": "8760h"
+      },
+      "vault": {
+        "usages": [
+            "signing",
+            "digital signature",
+            "key encipherment",
+            "client auth",
+            "server auth"
+        ],
+        "expiry": "8760h"
+      }
+    }
+  }
+}

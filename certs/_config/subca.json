@@ -1,0 +1,22 @@
+{
+    "CN": "Custom local sub CA",
+    "key":
+        {
+            "algo": "rsa",
+            "size": 2048
+        },
+    "names":
+        [
+            {
+            "C": "FR",
+            "L": "TLS",
+            "O": "WorldCompany",
+            "OU": "CA",
+            "ST": "subCA"
+            }
+        ],
+    "ca":
+        {
+        "expiry": "43800h"
+        }
+}

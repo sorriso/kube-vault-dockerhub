@@ -9,4 +9,6 @@
 *.csr
 *.crt
 cluster-keys.json
-certs/consul
+**/_tools/consul
+**/_tools/cfssl
+**/_tools/cfssljson

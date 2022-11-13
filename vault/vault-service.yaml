@@ -20,7 +20,7 @@ spec:
   selector:
     app: vault
   publishNotReadyAddresses: false
-#  selector:
-#    app: vault
+  selector:
+    app: vault
 #    # vault-active is one of the dynamic labels managed by vault’s “Kubernetes service registration” only for HA mode
-#    vault-active: "true"
+    vault-active: "true"
