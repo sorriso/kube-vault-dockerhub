@@ -12,28 +12,28 @@ export VAULT_TOKEN=$(cat ./cluster-keys.json | jq -r ".root_token" )
 export VAULT_ADDR=https://vault.kube.local
 
 echo "*****************************************************************************************************************************************"
-echo "Configuration pki_edge-issuer"
+echo "Configuration pki_sec-issuer"
 echo ""
 
-kubectl delete -f cert-manager-pki_edge
+kubectl delete -f cert-manager-pki_sec
 
 echo ""
 echo "Create dedicated policy"
 echo ""
 
-tee payload-issuer-edge.json <<EOF
+tee payload-issuer-sec.json <<EOF
 {
-  "policy": "path \"pki_edge/*\" { capabilities = [\"create\", \"read\", \"update\", \"delete\", \"list\", \"sudo\"] }"
+  "policy": "path \"pki_sec/*\" { capabilities = [\"create\", \"read\", \"update\", \"delete\", \"list\", \"sudo\"] }"
 }
 EOF
 
 curl -k \
     --header "X-Vault-Token: $VAULT_TOKEN" \
     --request POST \
-    --data @payload-issuer-edge.json \
-    $VAULT_ADDR/v1/sys/policy/pki_edge-issuer-policy
+    --data @payload-issuer-sec.json \
+    $VAULT_ADDR/v1/sys/policy/pki_sec-issuer-policy
 
-rm -f payload-issuer-edge.json
+rm -f payload-issuer-sec.json
 
 echo ""
 echo "List policy"
@@ -42,15 +42,15 @@ echo ""
 curl -k \
     --header "X-Vault-Token: $VAULT_TOKEN" \
     --request GET \
-    $VAULT_ADDR/v1/sys/policy/pki_edge-issuer-policy | jq
+    $VAULT_ADDR/v1/sys/policy/pki_sec-issuer-policy | jq
 
 echo ""
 echo "Create role"
 echo ""
 
-tee payload-role-edge.json <<EOF
+tee payload-role-sec.json <<EOF
 {
-    "policies": "pki_edge-issuer-policy",
+    "policies": "pki_sec-issuer-policy",
     "token_ttl": "20m",
     "token_max": "30m"
 }
@@ -62,8 +62,8 @@ EOF
 curl -k \
     --header "X-Vault-Token: $VAULT_TOKEN" \
     --request POST \
-    --data @payload-role-edge.json \
-    $VAULT_ADDR/v1/auth/approle/role/pki_edge-issuer-role
+    --data @payload-role-sec.json \
+    $VAULT_ADDR/v1/auth/approle/role/pki_sec-issuer-role
 
 echo ""
 echo "List approle / role"
@@ -72,9 +72,9 @@ echo ""
 curl -k \
     --header "X-Vault-Token: $VAULT_TOKEN" \
     --request GET \
-    $VAULT_ADDR/v1/auth/approle/role/pki_edge-issuer-role | jq
+    $VAULT_ADDR/v1/auth/approle/role/pki_sec-issuer-role | jq
 
-rm -f payload-role-edge.json
+rm -f payload-role-sec.json
 
 echo ""
 echo "Get ROLE_ID"
@@ -83,7 +83,7 @@ echo ""
 export ROLE_ID=$(curl -k \
                     --silent \
                     --header "X-Vault-Token: $VAULT_TOKEN" \
-                    $VAULT_ADDR/v1/auth/approle/role/pki_edge-issuer-role/role-id | \
+                    $VAULT_ADDR/v1/auth/approle/role/pki_sec-issuer-role/role-id | \
                     jq -r '.data.role_id' )
 
 echo "ROLE_ID: $ROLE_ID"
@@ -96,7 +96,7 @@ export SECRET_ID=$(curl -k \
                     --silent \
                     --header "X-Vault-Token: $VAULT_TOKEN" \
                     --request POST \
-                    $VAULT_ADDR/v1/auth/approle/role/pki_edge-issuer-role/secret-id | \
+                    $VAULT_ADDR/v1/auth/approle/role/pki_sec-issuer-role/secret-id | \
                     jq -r '.data.secret_id' )
 echo "SECRET_ID: $SECRET_ID"
 
@@ -124,12 +124,12 @@ echo ""
 echo "Create secret approle yaml file"
 echo ""
 
-rm -f cert-manager-pki_edge/cert-manager-secret-approle-pki_edge.yaml
-tee cert-manager-pki_edge/cert-manager-secret-approle-pki_edge.yaml <<EOF
+rm -f cert-manager-pki_sec/cert-manager-secret-approle-pki_sec.yaml
+tee cert-manager-pki_sec/cert-manager-secret-approle-pki_sec.yaml <<EOF
 apiVersion: v1
 kind: Secret
 metadata:
-  name: cert-manager-pki-edge
+  name: cert-manager-pki-sec
   namespace: vault-ns
   labels:
     app: cert-manager
@@ -140,27 +140,27 @@ stringData:
   SECRET_ID64: ${SECRET_ID64}
 EOF
 
-kubectl apply -f cert-manager-pki_edge/cert-manager-secret-approle-pki_edge.yaml
+kubectl apply -f cert-manager-pki_sec/cert-manager-secret-approle-pki_sec.yaml
 
 echo ""
 echo "Create vault issuer yaml file"
 echo ""
 
-rm -f cert-manager-pki_edge/cert-manager-pki_edge-ClusterIssuer.yaml
+rm -f cert-manager-pki_sec/cert-manager-pki_sec-ClusterIssuer.yaml
 
-CABUNDLE=$(cat ./certs/edge/bundle64.pem)
-tee cert-manager-pki_edge/cert-manager-pki_edge-ClusterIssuer.yaml <<EOF
+CABUNDLE=$(cat ./certs/subca/bundle64.pem)
+tee cert-manager-pki_sec/cert-manager-pki_sec-ClusterIssuer.yaml <<EOF
 apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
+kind: Issuer
 metadata:
-  name: vault-pki-edge-clusterissuer
+  name: vault-pki-sec-issuer
   namespace: vault-ns
   labels:
     app: cert-manager
     layer: pki-edge
 spec:
   vault:
-    path: pki_edge/sign/pki_edge-role
+    path: pki_sec/sign/pki_sec-role
     server: https://vault-service
     caBundle: $CABUNDLE
     auth:
@@ -168,11 +168,11 @@ spec:
         path: approle
         roleId: ${ROLE_ID}
         secretRef:
-          name: cert-manager-pki-edge
+          name: cert-manager-pki-sec
           key: SECRET_ID
 EOF
 
-kubectl apply -f cert-manager-pki_edge/cert-manager-pki_edge-ClusterIssuer.yaml
+kubectl apply -f cert-manager-pki_sec/cert-manager-pki_sec-ClusterIssuer.yaml
 
 echo ""
 echo "Get issuer list"

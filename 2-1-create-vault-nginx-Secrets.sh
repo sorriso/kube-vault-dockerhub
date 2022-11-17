@@ -1,6 +1,6 @@
 #!/bin/bash
 
-kubectl apply -f common/vault-namespace.yaml
+kubectl apply -f common
 sleep 2
 
 echo ".        Deleting vault nginx secret (if any)"

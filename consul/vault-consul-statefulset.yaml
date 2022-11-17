@@ -15,7 +15,7 @@ spec:
       role: server
   serviceName: consul
   podManagementPolicy: "Parallel"
-  replicas: 3
+  replicas: 4
   updateStrategy:
     type: RollingUpdate
   template:
@@ -49,7 +49,7 @@ spec:
 
           - "agent"
           - "-advertise=$(POD_IP)"
-          - "-bootstrap-expect=3"
+          - "-bootstrap-expect=4"
           - "-config-file=/etc/consul/config/config.json"
           - "-encrypt=$(GOSSIP_ENCRYPTION_KEY)"
 

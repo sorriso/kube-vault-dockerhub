@@ -128,8 +128,21 @@ echo ""
 curl -k --header "X-Vault-Token: $VAULT_TOKEN" \
     --request POST \
     --data '{"common_name": "test.kube.local", "ttl": "24h"}' \
-    $VAULT_ADDR/v1/pki_edge/issue/pki_edge-role | jq
+    $VAULT_ADDR/v1/pki_edge/issue/pki_edge-role | jq > ./test-cert.json
 
+ISSUER=$(cat ./test-cert.json | jq -r ".data.issuing_ca")
+CAISSUER=$(cat ./certs/ca/ca.pem)
+cp ./test-cert.json ./certs/edge/test-cert.json
+
+tee ./certs/edge/bundle.pem <<EOF
+$ISSUER
+$CAISSUER
+EOF
+
+BUNDLE=$(cat ./certs/edge/bundle.pem | base64 )
+tee ./certs/edge/bundle64.pem <<EOF
+$BUNDLE
+EOF
 
 rm -f *.crt
 rm -f *.csr

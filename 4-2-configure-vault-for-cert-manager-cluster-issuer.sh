@@ -10,31 +10,31 @@ export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
 
 export VAULT_TOKEN=$(cat ./cluster-keys.json | jq -r ".root_token" )
 
-export VAULT_ADDR=https://vault.kube.local
+export VAULT_ADDR=https://vault.cluster.local
 
 echo "*****************************************************************************************************************************************"
-echo "Configuration pki_kube-issuer"
+echo "Configuration pki_cluster-issuer"
 echo ""
 
-kubectl delete -f cert-manager-pki_kube
+clusterctl delete -f cert-manager-pki_cluster
 
 echo ""
 echo "Create dedicated policy"
 echo ""
 
-tee payload-issuer-kube.json <<EOF
+tee payload-issuer-cluster.json <<EOF
 {
-  "policy": "path \"pki_kube/*\" { capabilities = [\"create\", \"read\", \"update\", \"delete\", \"list\", \"sudo\"] }"
+  "policy": "path \"pki_cluster/*\" { capabilities = [\"create\", \"read\", \"update\", \"delete\", \"list\", \"sudo\"] }"
 }
 EOF
 
 curl -k \
     --header "X-Vault-Token: $VAULT_TOKEN" \
     --request POST \
-    --data @payload-issuer-kube.json \
-    $VAULT_ADDR/v1/sys/policy/pki_kube-issuer-policy
+    --data @payload-issuer-cluster.json \
+    $VAULT_ADDR/v1/sys/policy/pki_cluster-issuer-policy
 
-rm -f payload-issuer-kube.json
+rm -f payload-issuer-cluster.json
 
 echo ""
 echo "List policy"
@@ -43,15 +43,15 @@ echo ""
 curl -k \
     --header "X-Vault-Token: $VAULT_TOKEN" \
     --request GET \
-    $VAULT_ADDR/v1/sys/policy/pki_kube-issuer-policy | jq
+    $VAULT_ADDR/v1/sys/policy/pki_cluster-issuer-policy | jq
 
 echo ""
 echo "Create role"
 echo ""
 
-tee payload-role-kube.json <<EOF
+tee payload-role-cluster.json <<EOF
 {
-    "policies": "pki_kube-issuer-policy",
+    "policies": "pki_cluster-issuer-policy",
     "token_ttl": "180m",
     "token_max": "300m"
 }
@@ -63,8 +63,8 @@ EOF
 curl -k \
     --header "X-Vault-Token: $VAULT_TOKEN" \
     --request POST \
-    --data @payload-role-kube.json \
-    $VAULT_ADDR/v1/auth/approle/role/pki_kube-issuer-role
+    --data @payload-role-cluster.json \
+    $VAULT_ADDR/v1/auth/approle/role/pki_cluster-issuer-role
 
 echo ""
 echo "List approle / role"
@@ -73,9 +73,9 @@ echo ""
 curl -k \
     --header "X-Vault-Token: $VAULT_TOKEN" \
     --request GET \
-    $VAULT_ADDR/v1/auth/approle/role/pki_kube-issuer-role | jq
+    $VAULT_ADDR/v1/auth/approle/role/pki_cluster-issuer-role | jq
 
-rm -f payload-role-kube.json
+rm -f payload-role-cluster.json
 
 echo ""
 echo "Get ROLE"
@@ -84,7 +84,7 @@ echo ""
 export ROLE=$(curl -k \
                     --silent \
                     --header "X-Vault-Token: $VAULT_TOKEN" \
-                    $VAULT_ADDR/v1/auth/approle/role/pki_kube-issuer-role | jq )
+                    $VAULT_ADDR/v1/auth/approle/role/pki_cluster-issuer-role | jq )
 
 echo "ROLE: $ROLE"
 
@@ -95,7 +95,7 @@ echo ""
 export ROLE_ID=$(curl -k \
                     --silent \
                     --header "X-Vault-Token: $VAULT_TOKEN" \
-                    $VAULT_ADDR/v1/auth/approle/role/pki_kube-issuer-role/role-id | \
+                    $VAULT_ADDR/v1/auth/approle/role/pki_cluster-issuer-role/role-id | \
                     jq -r '.data.role_id' )
 
 echo "ROLE_ID: $ROLE_ID"
@@ -108,7 +108,7 @@ export SECRET_ID=$(curl -k \
                     --silent \
                     --header "X-Vault-Token: $VAULT_TOKEN" \
                     --request POST \
-                    $VAULT_ADDR/v1/auth/approle/role/pki_kube-issuer-role/secret-id | \
+                    $VAULT_ADDR/v1/auth/approle/role/pki_cluster-issuer-role/secret-id | \
                     jq -r '.data.secret_id' )
 echo "SECRET_ID: $SECRET_ID"
 
@@ -120,58 +120,58 @@ echo ""
 echo "Testing appRole login"
 echo ""
 
-tee payload_login_kube.json <<EOF
+tee payload_login_cluster.json <<EOF
 {
  "role_id": "${ROLE_ID}",
  "secret_id": "${SECRET_ID}"
 }
 EOF
 
-#curl -k --request POST --data @payload_login_kube.json $VAULT_ADDR/v1/auth/approle/login | jq
+#curl -k --request POST --data @payload_login_cluster.json $VAULT_ADDR/v1/auth/approle/login | jq
 
-rm -f payload_login_kube.json
+rm -f payload_login_cluster.json
 
 echo ""
 echo "Create secret approle yaml file"
 echo ""
 
-rm -f cert-manager-pki_kube/cert-manager-secret-approle-pki_kube.yaml
-tee cert-manager-pki_kube/cert-manager-secret-approle-pki_kube.yaml <<EOF
+rm -f cert-manager-pki_cluster/cert-manager-secret-approle-pki_cluster.yaml
+tee cert-manager-pki_cluster/cert-manager-secret-approle-pki_cluster.yaml <<EOF
 apiVersion: v1
 kind: Secret
 metadata:
-  name: cert-manager-pki-kube
+  name: cert-manager-pki-cluster
   namespace: vault-ns
   labels:
     app: cert-manager
-    layer: pki-kube
+    layer: pki-cluster
 type: Opaque
 stringData:
   SECRET_ID: ${SECRET_ID}
   SECRET_ID64: ${SECRET_ID64}
 EOF
 
-kubectl apply -f cert-manager-pki_kube/cert-manager-secret-approle-pki_kube.yaml
+kubectl apply -f cert-manager-pki_cluster/cert-manager-secret-approle-pki_cluster.yaml
 
 echo ""
 echo "Create vault issuer yaml file"
 echo ""
 
-rm -f cert-manager-pki_kube/cert-manager-pki_kube-ClusterIssuer.yaml
+rm -f cert-manager-pki_cluster/cert-manager-pki_cluster-ClusterIssuer.yaml
 
-CABUNDLE=$(cat ./certs/subca/dundle.pem | base64)
-tee cert-manager-pki_kube/cert-manager-pki_kube-ClusterIssuer.yaml <<EOF
+CABUNDLE=$(cat ./certs/cluster/bundle64.pem)
+tee cert-manager-pki_cluster/cert-manager-pki_cluster-ClusterIssuer.yaml <<EOF
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
-  name: vault-pki-kube-clusterissuer
+  name: vault-pki-cluster-clusterissuer
   namespace: vault-ns
   labels:
     app: cert-manager
-    layer: pki-kube
+    layer: pki-cluster
 spec:
   vault:
-    path: pki_kube/sign/pki_kube-role
+    path: pki_cluster/sign/pki_cluster-role
     server: https://vault-service
     caBundle: $CABUNDLE
     auth:
@@ -179,11 +179,11 @@ spec:
         path: approle
         roleId: ${ROLE_ID}
         secretRef:
-          name: cert-manager-pki-kube
+          name: cert-manager-pki-cluster
           key: SECRET_ID
 EOF
 
-kubectl apply -f cert-manager-pki_kube/cert-manager-pki_kube-ClusterIssuer.yaml
+kubectl apply -f cert-manager-pki_cluster/cert-manager-pki_cluster-ClusterIssuer.yaml
 
 echo ""
 echo "Get issuer list"

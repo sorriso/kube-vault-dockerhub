@@ -33,6 +33,16 @@ rm -f *.srl
 ../_tools/cfssl sign -ca ../ca/ca.pem -ca-key ../ca/ca-key.pem -config ../_config/cfssl.json -profile subca subca.csr | ../_tools/cfssljson -bare subca
 rm -f *.csr
 
+cat subca.pem > bundle.pem
+cat ../ca/ca.pem >> bundle.pem
+
+KEY=$( sed '$!s/$/\\n/' ./subca-key.pem | tr -d '\n' )
+PEM=$( sed '$!s/$/\\n/' ./subca.pem | tr -d '\n' )
+
+tee payload-subcabundle.json <<EOF
+{"pem_bundle": "$KEY\n$PEM"}
+EOF
+
 cd ..
 
 # openssl rsa -in intermediate.key.pem -out intermediate.key.pem -outform pem

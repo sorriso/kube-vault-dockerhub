@@ -12,3 +12,6 @@ cluster-keys.json
 **/_tools/consul
 **/_tools/cfssl
 **/_tools/cfssljson
+**/cert-manager-pki_*/*.yaml
+payload-*.json
+test-*.json

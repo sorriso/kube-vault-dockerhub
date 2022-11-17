@@ -19,7 +19,7 @@ echo "unsealing vault"
 echo ""
 echo ""
 
-for srv in $(seq 0 2)
+for srv in $(seq 0 3)
     do
     echo "unsealing server : vault-$srv"
     for idx in $(seq 1 3)

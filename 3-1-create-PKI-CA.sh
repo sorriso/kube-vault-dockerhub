@@ -105,14 +105,28 @@ curl -k  \
 rm payload-url.json
 
 echo ""
+echo "updating CA with CA manually created previously"
+echo ""
+
+cp ./certs/ca/payload-cabundle.json ./payload-cabundle.json
+
+curl -k  \
+  --header "X-Vault-Token: $VAULT_TOKEN" \
+  --request POST \
+  --data "@payload-cabundle.json" \
+  $VAULT_ADDR/v1/pki/config/ca
+
+rm -f ./payload-cabundle.json
+
+echo ""
 echo "request a cert"
 echo ""
 
 curl -k  \
-   --header "X-Vault-Token: $VAULT_TOKEN" \
-    --request POST \
-    --data '{"common_name": "test.local", "ttl": "24h"}' \
-    $VAULT_ADDR/v1/pki/issue/root-local-role | jq
+  --header "X-Vault-Token: $VAULT_TOKEN" \
+  --request POST \
+  --data '{"common_name": "test2.local", "ttl": "24h"}' \
+  $VAULT_ADDR/v1/pki/issue/root-local-role | jq
 
 
 

@@ -10,3 +10,6 @@ echo ".      Running 4-2-configure-vault-for-cert-manager-kube-issuer.sh"
 
 echo ".      Running 4-3-configure-vault-for-cert-manager-edge-issuer.sh"
 ./4-3-configure-vault-for-cert-manager-edge-issuer.sh
+
+echo ".      Running 4-4-configure-vault-for-cert-manager-sec-issuer.sh"
+./4-4-configure-vault-for-cert-manager-sec-issuer.sh

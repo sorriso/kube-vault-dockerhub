@@ -14,7 +14,7 @@ export VAULT_ADDR=https://vault.kube.local
 
 
 echo ""
-echo "Building INTERMEDIATE CA pki_cluster"
+echo "Building INTERMEDIATE CA pki_sec"
 echo ""
 
 
@@ -26,7 +26,7 @@ echo ""
 curl -k --header "X-Vault-Token: $VAULT_TOKEN" \
    --request POST \
    --data '{"type":"pki"}' \
-   $VAULT_ADDR/v1/sys/mounts/pki_cluster
+   $VAULT_ADDR/v1/sys/mounts/pki_sec
 
 echo ""
 echo "adding secret"
@@ -35,16 +35,16 @@ echo ""
 curl -k --header "X-Vault-Token: $VAULT_TOKEN" \
    --request POST \
    --data '{"max_lease_ttl":"43800h"}' \
-   $VAULT_ADDR/v1/sys/mounts/pki_cluster/tune
+   $VAULT_ADDR/v1/sys/mounts/pki_sec/tune
 
 echo ""
 echo "creating csr"
 echo ""
 
-tee payload-pki_cluster.json <<EOF
+tee payload-pki_sec.json <<EOF
 {
-  "common_name": "pki_cluster Intermediate Authority",
-  "issuer_name": "pki_cluster-intermediate"
+  "common_name": "pki_sec Intermediate Authority",
+  "issuer_name": "pki_sec-intermediate"
 }
 EOF
 
@@ -52,19 +52,19 @@ curl -k \
     --silent \
     --header "X-Vault-Token: $VAULT_TOKEN" \
     --request POST \
-    --data @payload-pki_cluster.json \
-    $VAULT_ADDR/v1/pki_cluster/intermediate/generate/internal \
-    | jq -c '.data | .csr' > pki_cluster_intermediate.csr
+    --data @payload-pki_sec.json \
+    $VAULT_ADDR/v1/pki_sec/intermediate/generate/internal \
+    | jq -c '.data | .csr' > pki_sec_intermediate.csr
 
-rm payload-pki_cluster.json
+rm payload-pki_sec.json
 
  echo ""
  echo "signing intermediate"
  echo ""
 
-tee payload-pki_cluster-cert.json <<EOF
+tee payload-pki_sec-cert.json <<EOF
 {
-  "csr": $(cat pki_cluster_intermediate.csr),
+  "csr": $(cat pki_sec_intermediate.csr),
   "format": "pem_bundle",
   "ttl": "43800h"
 }
@@ -74,19 +74,19 @@ curl -k \
     --silent \
     --header "X-Vault-Token: $VAULT_TOKEN" \
     --request POST \
-    --data @payload-pki_cluster-cert.json \
+    --data @payload-pki_sec-cert.json \
     $VAULT_ADDR/v1/pki/root/sign-intermediate \
-    | jq '.data | .certificate' > pki_cluster_intermediate.cert.pem
+    | jq '.data | .certificate' > pki_sec_intermediate.cert.pem
 
-rm payload-pki_cluster-cert.json
+rm payload-pki_sec-cert.json
 
 echo ""
 echo "importing intermediate cert"
 echo ""
 
-tee payload-pki_cluster-signed.json <<EOF
+tee payload-pki_sec-signed.json <<EOF
 {
-  "certificate": $(cat pki_cluster_intermediate.cert.pem)
+  "certificate": $(cat pki_sec_intermediate.cert.pem)
 }
 EOF
 
@@ -94,31 +94,45 @@ curl -k \
     --silent \
     --header "X-Vault-Token: $VAULT_TOKEN" \
     --request POST \
-    --data @payload-pki_cluster-signed.json \
-    $VAULT_ADDR/v1/pki_cluster/intermediate/set-signed \
+    --data @payload-pki_sec-signed.json \
+    $VAULT_ADDR/v1/pki_sec/intermediate/set-signed \
     | jq
 
-rm payload-pki_cluster-signed.json
+rm payload-pki_sec-signed.json
 
 echo ""
 echo "configuring roles"
 echo ""
 
-tee payload-pki_cluster-role.json <<EOF
+tee payload-pki_sec-role.json <<EOF
 {
   "allowed_domains": "cluster.local",
   "allow_subdomains": true,
-  "issuer_ref": "pki_cluster-intermediate",
+  "issuer_ref": "pki_sec-intermediate",
   "max_ttl": "720h"
 }
 EOF
 
 curl -k --header "X-Vault-Token: $VAULT_TOKEN" \
    --request POST \
-   --data @payload-pki_cluster-role.json \
-   $VAULT_ADDR/v1/pki_cluster/roles/pki_cluster-role
+   --data @payload-pki_sec-role.json \
+   $VAULT_ADDR/v1/pki_sec/roles/pki_sec-role
 
-rm payload-pki_cluster-role.json
+rm payload-pki_sec-role.json
+
+echo ""
+echo "updating SubCA_sec with SubCA_sec manually created previously"
+echo ""
+
+cp ./certs/subca/payload-subcabundle.json ./payload-subcabundle.json
+
+curl -k  \
+  --header "X-Vault-Token: $VAULT_TOKEN" \
+  --request POST \
+  --data "@payload-subcabundle.json" \
+  $VAULT_ADDR/v1/pki_sec/config/ca
+
+rm -f ./payload-subcabundle.json
 
 echo ""
 echo "request certificate"
@@ -127,19 +141,19 @@ echo ""
 curl -k --header "X-Vault-Token: $VAULT_TOKEN" \
     --request POST \
     --data '{"common_name": "test.cluster.local", "ttl": "24h"}' \
-    $VAULT_ADDR/v1/pki_cluster/issue/pki_cluster-role | jq   > test-cert.json
+    $VAULT_ADDR/v1/pki_sec/issue/pki_sec-role | jq   > test-cert.json
 
 ISSUER=$(cat ./test-cert.json | jq -r ".data.issuing_ca")
 CAISSUER=$(cat ./certs/ca/ca.pem)
-cp ./test-cert.json ./certs/cluster/test-cert.json
+cp ./test-cert.json ./certs/subca/test-cert.json
 
-tee ./certs/cluster/bundle.pem <<EOF
+tee ./certs/subca/bundle.pem <<EOF
 $ISSUER
 $CAISSUER
 EOF
 
-BUNDLE=$(cat ./certs/cluster/bundle.pem | base64 )
-tee ./certs/cluster/bundle64.pem <<EOF
+BUNDLE=$(cat ./certs/subca/bundle.pem | base64 )
+tee ./certs/subca/bundle64.pem <<EOF
 $BUNDLE
 EOF
 
