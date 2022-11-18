@@ -1,11 +1,11 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: vault-nginx-tls
+  name: vault-nginx-certificate
   namespace: vault-ns
 spec:
   # Secret names are always required.
-  secretName: vault-nginx-tls
+  secretName: vault-nginx-certificate
 
   # secretTemplate is optional. If set, these annotations and labels will be
   # copied to the Secret named example-com-tls. These labels and annotations will
@@ -17,10 +17,11 @@ spec:
       my-secret-annotation-1: "vault"
       my-secret-annotation-2: "nginx"
     labels:
-      my-secret-label: "vault-nginx-kube-tls"
+      my-secret-label: "vault-nginx-edge-tls"
 
-  duration: 24h
-  renewBefore: 8h
+
+  duration: 720h
+  renewBefore: 4h
   subject:
     organizations:
       - vault
@@ -35,8 +36,8 @@ spec:
   usages:
     - server auth
     - client auth
-    #- digital signature
-    #- key encipherment
+    - digital signature
+    - key encipherment
   # At least one of a DNS Name, URI, or IP address is required.
   dnsNames:
     - vault.kube.local
@@ -46,7 +47,7 @@ spec:
   # - 192.168.0.5
   # Issuer references are always required.
   issuerRef:
-    name: vault-kube-clusterissuer
+    name: vault-pki-edge-clusterissuer
     # We can reference ClusterIssuers by changing the kind here.
     # The default value is Issuer (i.e. a locally namespaced Issuer)
     kind: ClusterIssuer

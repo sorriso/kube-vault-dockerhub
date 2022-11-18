@@ -1,3 +1,4 @@
+# kubectl -n vault-ns exec -it vault-0 -- /bin/sh
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -5,10 +6,14 @@ metadata:
   namespace: vault-ns
   labels:
     app: vault
+    layer: application
 spec:
   serviceName: vault-internal
-  replicas: 3
+  podManagementPolicy: "Parallel"
+  replicas: 4
   updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 2
     type: RollingUpdate
   selector:
     matchLabels:
@@ -26,8 +31,8 @@ spec:
         fsGroup: 1000
       containers:
         - name: vault
-          image: hashicorp/vault:1.9.7 #1.12.0
-          imagePullPolicy: Always
+          image: l_vault:latest
+          imagePullPolicy: Never
           command:
           - "/bin/sh"
           - "-ec"
@@ -41,13 +46,17 @@ spec:
             [ -n "${TRANSIT_ADDR}" ] && sed -Ei "s|TRANSIT_ADDR|${TRANSIT_ADDR?}|g" /tmp/storageconfig.hcl;
             [ -n "${RAFT_ADDR}" ] && sed -Ei "s|RAFT_ADDR|${RAFT_ADDR?}|g" /tmp/storageconfig.hcl;
             /usr/local/bin/docker-entrypoint.sh vault server -config=/tmp/storageconfig.hcl
+
           securityContext:
+
             allowPrivilegeEscalation: false
             capabilities:
               drop:
                 - all
               add: ['IPC_LOCK']
+
           env:
+
             - name: POD_IP
               valueFrom:
                 fieldRef:
@@ -69,9 +78,9 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: VAULT_ADDR
-              value: "https://vault.kube.local"
+              value: "http://127.0.0.1:8200"
             - name: VAULT_API_ADDR
-              value: "https://vault.kube.local"
+              value: "http://127.0.0.1:8200"
             - name: SKIP_CHOWN
               value: "true"
             - name: SKIP_SETCAP
@@ -80,7 +89,9 @@ spec:
               value: "https://$(HOSTNAME).vault-internal:8201"
             - name: HOME
               value: "/home/vault"
+
           ports:
+
             - name: http
               containerPort: 8200
             - name: https
@@ -89,65 +100,95 @@ spec:
               containerPort: 8201
             - name: http-rep
               containerPort: 8202
+
           resources:
+
             limits:
               cpu: 500m
               memory: 3Gi
             requests:
               cpu: 10m
               memory: 512Mi
+
           readinessProbe:
+
             tcpSocket:
-              port: 8300
+              port: 8200
             failureThreshold: 2
             initialDelaySeconds: 5
             periodSeconds: 30
             successThreshold: 1
             timeoutSeconds: 5
+
           livenessProbe:
+
             tcpSocket:
-              port: 8300
+              port: 8200
             failureThreshold: 6
             initialDelaySeconds: 10
             periodSeconds: 30
             successThreshold: 1
             timeoutSeconds: 5
+
           volumeMounts:
-            - name: vault-data-volume
+
+            - name: pvc-vaults-data
               mountPath: /vault/data
+
+            - name: pvc-vaults-home
+              mountPath: /home/vault
+
             - name: vault-config-volume
               mountPath: /vault/config
-            - name: vault-home-volume
-              mountPath: /home/vault
+
             - name: pod-cert
-              mountPath: "/cert"
+              mountPath: "/cert/"
+
       volumes:
-        - name: vault-data-volume
-          persistentVolumeClaim:
-            claimName: vault-data-volume-claim
-        - name: vault-home-volume
-          persistentVolumeClaim:
-            claimName: vault-home-volume-claim
+
         - name: vault-config-volume
           configMap:
             name: vault-configmap
             items:
             - key: extraconfig-from-values.hcl
               path: extraconfig-from-values.hcl
+
         - name: pod-cert
           csi:
             driver: csi.cert-manager.io
             readOnly: true
             volumeAttributes:
-                csi.cert-manager.io/issuer-kind: ClusterIssuer
-                csi.cert-manager.io/issuer-name: vault-cluster-clusterissuer
-                csi.cert-manager.io/issuer-group: cert-manager.io
-                csi.cert-manager.io/common-name: vault.cluster.local
-                csi.cert-manager.io/dns-names: ${POD_NAME}.${POD_NAMESPACE}.pod.cluster.local
-                csi.cert-manager.io/duration: 12h
-                csi.cert-manager.io/renew-before: 4h
-                csi.cert-manager.io/is-ca: "false"
-                csi.cert-manager.io/key-usages: digital signature,key encipherment,server auth,client auth
-                csi.cert-manager.io/certificate-file: domain.pem
-                csi.cert-manager.io/privatekey-file: domain.key
-                csi.cert-manager.io/ca-file: ca.pem
+              csi.cert-manager.io/issuer-kind: Issuer
+              csi.cert-manager.io/issuer-name: vault-pki-sec-issuer
+              csi.cert-manager.io/issuer-group: cert-manager.io
+              csi.cert-manager.io/common-name: vault.cluster.local
+              csi.cert-manager.io/dns-names: ${POD_NAME}.${POD_NAMESPACE}.pod.cluster.local
+              csi.cert-manager.io/duration: 720h
+              csi.cert-manager.io/renew-before: 4h
+              csi.cert-manager.io/is-ca: "false"
+              csi.cert-manager.io/key-usages: digital signature,key encipherment,server auth,client auth
+              csi.cert-manager.io/certificate-file: domain.pem
+              csi.cert-manager.io/privatekey-file: domain.key
+              csi.cert-manager.io/ca-file: ca.pem
+
+  volumeClaimTemplates:
+
+  - metadata:
+      name: pvc-vaults-data
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      storageClassName: longhorn-retain
+      resources:
+        requests:
+          storage: 250Mi
+
+  - metadata:
+      name: pvc-vaults-home
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      storageClassName: longhorn-retain
+      resources:
+        requests:
+          storage: 250Mi

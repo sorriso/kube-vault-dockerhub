@@ -1,5 +1,4 @@
 #!/bin/bash
-# https://developer.hashicorp.com/vault/api-docs/secret/pki#submit-ca-information
 
 rm -f ./payload*.json
 rm -f ./*.pem
@@ -10,13 +9,13 @@ export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
 
 export VAULT_TOKEN=$(cat ./cluster-keys.json | jq -r ".root_token" )
 
-export VAULT_ADDR=https://vault.cluster.local
+export VAULT_ADDR=https://vault.kube.local
 
 echo "*****************************************************************************************************************************************"
 echo "Configuration pki_cluster-issuer"
 echo ""
 
-clusterctl delete -f cert-manager-pki_cluster
+kubectl delete -f cert-manager-pki_cluster
 
 echo ""
 echo "Create dedicated policy"
@@ -52,8 +51,8 @@ echo ""
 tee payload-role-cluster.json <<EOF
 {
     "policies": "pki_cluster-issuer-policy",
-    "token_ttl": "180m",
-    "token_max": "300m"
+    "token_ttl": "20m",
+    "token_max": "30m"
 }
 EOF
 #"secret_id_ttl": "30m",
@@ -76,17 +75,6 @@ curl -k \
     $VAULT_ADDR/v1/auth/approle/role/pki_cluster-issuer-role | jq
 
 rm -f payload-role-cluster.json
-
-echo ""
-echo "Get ROLE"
-echo ""
-
-export ROLE=$(curl -k \
-                    --silent \
-                    --header "X-Vault-Token: $VAULT_TOKEN" \
-                    $VAULT_ADDR/v1/auth/approle/role/pki_cluster-issuer-role | jq )
-
-echo "ROLE: $ROLE"
 
 echo ""
 echo "Get ROLE_ID"
@@ -127,7 +115,8 @@ tee payload_login_cluster.json <<EOF
 }
 EOF
 
-#curl -k --request POST --data @payload_login_cluster.json $VAULT_ADDR/v1/auth/approle/login | jq
+curl -k --request POST --data @payload_login_cluster.json $VAULT_ADDR/v1/auth/approle/login \
+    | jq
 
 rm -f payload_login_cluster.json
 
@@ -159,7 +148,7 @@ echo ""
 
 rm -f cert-manager-pki_cluster/cert-manager-pki_cluster-ClusterIssuer.yaml
 
-CABUNDLE=$(cat ./certs/cluster/bundle64.pem)
+CABUNDLE=$(cat ./certs/edge/bundle64.pem)
 tee cert-manager-pki_cluster/cert-manager-pki_cluster-ClusterIssuer.yaml <<EOF
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -168,7 +157,7 @@ metadata:
   namespace: vault-ns
   labels:
     app: cert-manager
-    layer: pki-cluster
+    layer: pki-edge
 spec:
   vault:
     path: pki_cluster/sign/pki_cluster-role

@@ -24,6 +24,8 @@ helm install \
   --set prometheus.enabled=false \
   --set webhook.timeoutSeconds=4
 
+helm upgrade -i -n vault-ns cert-manager-csi-driver jetstack/cert-manager-csi-driver --wait
+
 echo ""
 echo "Enable approle"
 echo ""

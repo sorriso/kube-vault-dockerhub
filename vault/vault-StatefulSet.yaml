@@ -12,6 +12,8 @@ spec:
   podManagementPolicy: "Parallel"
   replicas: 4
   updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 2
     type: RollingUpdate
   selector:
     matchLabels:

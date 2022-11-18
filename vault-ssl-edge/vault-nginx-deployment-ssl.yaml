@@ -5,6 +5,7 @@ metadata:
   namespace: vault-ns
   labels:
     app: vault-nginx
+    layer: reverseproxy
 spec:
   replicas: 1
   selector:
@@ -17,68 +18,96 @@ spec:
     spec:
       containers:
       - name: vault-nginx
-        image: nginx:1.23.2-alpine
-        imagePullPolicy: Always
+        image: l_nginx:latest
+        imagePullPolicy: Never
+
         ports:
-          - containerPort: 80
-            protocol: TCP
+
           - containerPort: 443
             protocol: TCP
+
         resources:
+
           limits:
             cpu: 500m
             memory: 512Mi
           requests:
             cpu: 10m
             memory: 128Mi
+
+        readinessProbe:
+
+          tcpSocket:
+            port: 443
+          failureThreshold: 2
+          initialDelaySeconds: 5
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 5
+
+        livenessProbe:
+
+          tcpSocket:
+            port: 443
+          failureThreshold: 6
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 5
+
         volumeMounts:
+
           - name: nginx-configuration
             mountPath: /etc/nginx/nginx.conf
             subPath: NGINX_CONF_KEY
+
           - name: application-configuration
             mountPath: /etc/nginx/nginx.d/app.conf
             subPath: APP_CONF_KEY
+
           - name: vault-pem
             mountPath: /etc/nginx/ssl/ext/cert-ext.pem
             subPath: tls.crt
+
           - name: vault-privkey
             mountPath: /etc/nginx/ssl/ext/cert-ext.key
             subPath: tls.key
-          - name: vault-ca
-            mountPath: /etc/nginx/ssl/ext/ca-ext.key
-            subPath: ca.crt
+
           - name: pod-cert
             mountPath: "/etc/nginx/ssl/int/"
+
       volumes:
+
         - name: nginx-configuration
           secret:
             secretName: vault-nginx-secret
+
         - name: application-configuration
           secret:
             secretName: vault-nginx-secret
+
         - name: vault-pem
           secret:
-            secretName: vault-nginx-tls
+            secretName: vault-nginx-certificate
+
         - name: vault-privkey
           secret:
-            secretName: vault-nginx-tls
-        - name: vault-ca
-          secret:
-            secretName: vault-nginx-tls
+            secretName: vault-nginx-certificate
+
         - name: pod-cert
           csi:
             driver: csi.cert-manager.io
             readOnly: true
             volumeAttributes:
-                csi.cert-manager.io/issuer-kind: ClusterIssuer
-                csi.cert-manager.io/issuer-name: vault-cluster-clusterissuer
-                csi.cert-manager.io/issuer-group: cert-manager.io
-                csi.cert-manager.io/common-name: vault.nginx.cluster.local
-                csi.cert-manager.io/dns-names: ${POD_NAME}.${POD_NAMESPACE}.pod.cluster.local
-                csi.cert-manager.io/duration: 12h
-                csi.cert-manager.io/renew-before: 4h
-                csi.cert-manager.io/is-ca: "false"
-                csi.cert-manager.io/key-usages: digital signature,key encipherment,server auth,client auth
-                csi.cert-manager.io/certificate-file: cert-int.pem
-                csi.cert-manager.io/privatekey-file: cert-int.key
-                csi.cert-manager.io/ca-file: ca-int.pem
+              csi.cert-manager.io/issuer-kind: Issuer
+              csi.cert-manager.io/issuer-name: vault-pki-sec-issuer
+              csi.cert-manager.io/issuer-group: cert-manager.io
+              csi.cert-manager.io/common-name: vault.cluster.local
+              csi.cert-manager.io/dns-names: ${POD_NAME}.${POD_NAMESPACE}.pod.cluster.local
+              csi.cert-manager.io/duration: 720h
+              csi.cert-manager.io/renew-before: 4h
+              csi.cert-manager.io/is-ca: "false"
+              csi.cert-manager.io/key-usages: digital signature,key encipherment,server auth,client auth
+              csi.cert-manager.io/certificate-file: cert-int.pem
+              csi.cert-manager.io/privatekey-file: cert-int.key
+              csi.cert-manager.io/ca-file: ca.pem
