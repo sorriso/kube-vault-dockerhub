@@ -13,7 +13,7 @@ spec:
   replicas: 4
   updateStrategy:
     rollingUpdate:
-      maxUnavailable: 2
+      maxUnavailable: 1
     type: RollingUpdate
   selector:
     matchLabels:
@@ -161,6 +161,7 @@ spec:
               csi.cert-manager.io/issuer-kind: Issuer
               csi.cert-manager.io/issuer-name: vault-pki-sec-issuer
               csi.cert-manager.io/issuer-group: cert-manager.io
+              csi.cert-manager.io/fs-group: "1000"
               csi.cert-manager.io/common-name: vault.cluster.local
               csi.cert-manager.io/dns-names: ${POD_NAME}.${POD_NAMESPACE}.pod.cluster.local
               csi.cert-manager.io/duration: 720h

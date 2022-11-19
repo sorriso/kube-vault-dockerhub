@@ -1,5 +1,6 @@
-ARG ARG_VERSION
-FROM nginx:$ARG_VERSION
+#https://github.com/hashicorp/docker-consul
+ARG CONSUL_VERSION
+FROM consul:$CONSUL_VERSION
 COPY ./ca.pem /usr/local/share/ca-certificates/ca.crt
 RUN set -eux \
     update-ca-certificates \

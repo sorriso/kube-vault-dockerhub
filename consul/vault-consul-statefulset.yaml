@@ -19,7 +19,7 @@ spec:
   replicas: 4
   updateStrategy:
     rollingUpdate:
-      maxUnavailable: 2
+      maxUnavailable: 1
     type: RollingUpdate
   template:
     metadata:

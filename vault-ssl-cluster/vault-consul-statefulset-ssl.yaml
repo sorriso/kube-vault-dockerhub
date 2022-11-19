@@ -1,4 +1,5 @@
 # kubectl -n vault-ns exec -it consul-0 -- /bin/sh
+# kubectl -n vault-ns logs consul-0
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -19,7 +20,7 @@ spec:
   replicas: 4
   updateStrategy:
     rollingUpdate:
-      maxUnavailable: 2
+      maxUnavailable: 1
     type: RollingUpdate
   template:
     metadata:
@@ -30,6 +31,8 @@ spec:
       serviceAccountName: consul
       securityContext:
         fsGroup: 1000
+        #runAsUser: 1000
+        #runAsGroup: 1000
       containers:
       - name: consul
         image: l_consul:latest
@@ -52,7 +55,7 @@ spec:
 
           - "agent"
           - "-advertise=$(POD_IP)"
-          - "-bootstrap-expect=4"
+          - "-bootstrap-expect=3"
           - "-config-file=/etc/consul/config/config.json"
           - "-encrypt=$(GOSSIP_ENCRYPTION_KEY)"
 
@@ -95,14 +98,39 @@ spec:
         - name: consul-data
           mountPath: /consul/data
 
+        - name: consul-pem
+          mountPath: /etc/tls/consul.pem
+          subPath: consul.pem
+
+        - name: consul-privkey
+          mountPath: /etc/tls/consul-key.pem
+          subPath: consul-key.pem
+
+        - name: consul-ca
+          mountPath: /etc/tls/ca.pem
+          subPath: ca.pem
+
         - name: pod-cert
-          mountPath: "/etc/tls/"
+          mountPath: "/etc/tls2/"
+          readOnly: true
 
       volumes:
 
       - name: consul-config
         configMap:
           name: consul-config
+
+      - name: consul-pem
+        secret:
+          secretName: consul
+
+      - name: consul-privkey
+        secret:
+          secretName: consul
+
+      - name: consul-ca
+        secret:
+          secretName: consul
 
       - name: pod-cert
         csi:
@@ -112,6 +140,7 @@ spec:
             csi.cert-manager.io/issuer-kind: Issuer
             csi.cert-manager.io/issuer-name: vault-pki-sec-issuer
             csi.cert-manager.io/issuer-group: cert-manager.io
+            csi.cert-manager.io/fs-group: '1000'
             csi.cert-manager.io/common-name: consul.cluster.local
             csi.cert-manager.io/dns-names: ${POD_NAME}.${POD_NAMESPACE}.pod.cluster.local
             csi.cert-manager.io/duration: 720h
