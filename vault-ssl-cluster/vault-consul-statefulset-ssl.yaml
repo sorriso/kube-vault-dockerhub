@@ -31,11 +31,11 @@ spec:
       serviceAccountName: consul
       securityContext:
         fsGroup: 1000
-        #runAsUser: 1000
-        #runAsGroup: 1000
+#        runAsUser: 100
+#        runAsGroup: 1000
       containers:
       - name: consul
-        image: l_consul:latest
+        image: l_consul:latest-1.14.0_ubi8_8.7-923
         imagePullPolicy: Never
 
         env:
