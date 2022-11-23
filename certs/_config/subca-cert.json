@@ -1,5 +1,5 @@
 {
-    "CN": "Custom local sub CA",
+    "CN": "Custom local subCA-Cert",
     "key":
         {
             "algo": "rsa",
@@ -12,7 +12,7 @@
             "L": "TLS",
             "O": "WorldCompany",
             "OU": "CA",
-            "ST": "subCA"
+            "ST": "subCA-Cert"
             }
         ],
     "ca":

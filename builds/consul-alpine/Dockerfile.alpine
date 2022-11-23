@@ -11,6 +11,8 @@
 ARG ALPINE_VERSION
 FROM alpine:$ALPINE_VERSION
 
+USER 0
+
 # This is the release of Consul to pull in.
 ARG CONSUL_VERSION
 
@@ -36,13 +38,14 @@ RUN set -eux && \
 # the rest of this may change over time.
 RUN set -eux && \
     addgroup --gid "$CONSUL_GID" consul && \
-    adduser --uid "$CONSUL_UID" -S -G consul consul # && \
-    #usermod -g 0 consul -G consul
+    adduser --uid "$CONSUL_UID" -S -G consul consul
 
 # Set up certificates, base tools, and Consul.
 # libc6-compat is needed to symlink the shared libraries for ARM builds
 RUN set -eux && \
-    apk add --no-cache ca-certificates curl dumb-init gnupg libcap openssl su-exec iputils jq libc6-compat iptables tzdata && \
+#    echo http://dl-2.alpinelinux.org/alpine/edge/community/ >> /etc/apk/repositories && \
+    apk add --no-cache shadow ca-certificates curl dumb-init gnupg libcap openssl su-exec iputils jq libc6-compat iptables tzdata && \
+    usermod -g 0 consul -G consul && \
     gpg --keyserver keyserver.ubuntu.com --recv-keys C874011F0AB405110D02105534365D9472D7468F && \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
@@ -66,7 +69,7 @@ RUN set -eux && \
     cd /tmp && \
     rm -rf /tmp/build && \
     gpgconf --kill all && \
-    apk del gnupg openssl && \
+    apk del gnupg openssl shadow && \
     rm -rf /root/.gnupg && \
 # tiny smoke test to ensure the binary we downloaded runs
     consul version

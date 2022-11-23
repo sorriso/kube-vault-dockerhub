@@ -1,5 +1,5 @@
 {
-    "CN": "Custom local root CA",
+    "CN": "Custom local subCA-FrontOffice",
     "key":
         {
             "algo": "rsa",
@@ -11,12 +11,12 @@
             "C": "FR",
             "L": "TLS",
             "O": "WorldCompany",
-            "OU": "CA",
-            "ST": "ROOT CA"
+            "OU": "SubCA",
+            "ST": "FrontOffice"
             }
         ],
     "ca":
         {
-        "expiry": "87600h"
+        "expiry": "43800h"
         }
 }

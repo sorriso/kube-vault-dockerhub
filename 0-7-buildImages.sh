@@ -2,39 +2,32 @@
 
 cd builds
 
-cd consul-alpine
+#cd consul-alpine
+#./0-build-image.sh
+#cd ..
 
-./0-build-image.sh
-
-cd ..
 cd consul-quai
-
 ./0-build-image.sh
-
 cd ..
-cd consul-ubi8
 
-./0-build-image.sh
+#cd consul-ubi8
+#./0-build-image.sh
+#cd ..
 
-cd ..
 cd nginx
-
 ./0-build-image.sh
-
 cd ..
+
 cd vault-quai
-
 ./0-build-image.sh
-
-#cd ..
-#cd vault-alpine
-
-#./0-build-image.sh
-
-#cd ..
-#cd vault-ubi8
-
-#./0-build-image.sh
 cd ..
+
+#cd vault-alpine
+#./0-build-image.sh
+#cd ..
+
+#cd vault-ubi8
+#./0-build-image.sh
+#cd ..
 
 cd ..

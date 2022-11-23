@@ -126,9 +126,11 @@ curl -k  \
   --header "X-Vault-Token: $VAULT_TOKEN" \
   --request POST \
   --data '{"common_name": "test2.local", "ttl": "24h"}' \
-  $VAULT_ADDR/v1/pki/issue/root-local-role | jq
+  $VAULT_ADDR/v1/pki/issue/root-local-role | jq > test-ca.json
 
+echo $(cat ./test-ca.json)
 
+cp ./test-ca.json ./certs/ca/test-ca.json
 
 rm -f *.crt
 rm -f *.csr

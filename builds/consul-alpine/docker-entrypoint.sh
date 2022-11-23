@@ -86,19 +86,23 @@ if [ "$1" = 'consul' -a -z "${CONSUL_DISABLE_PERM_MGMT+x}" ]; then
   # Allow to setup user and group via envrironment
   if [ -z "$CONSUL_UID" ]; then
     CONSUL_UID="$(id -u consul)"
+    echo "CONSUL_UID: $CONSUL_UID"
   fi
 
   if [ -z "$CONSUL_GID" ]; then
     CONSUL_GID="$(id -g consul)"
+    echo "CONSUL_GID: $CONSUL_GID"
   fi
 
   # If the data or config dirs are bind mounted then chown them.
   # Note: This checks for root ownership as that's the most common case.
   if [ "$(stat -c %u "$CONSUL_DATA_DIR")" != "${CONSUL_UID}" ]; then
     chown ${CONSUL_UID}:${CONSUL_GID} "$CONSUL_DATA_DIR"
+    echo "chown1"
   fi
   if [ "$(stat -c %u "$CONSUL_CONFIG_DIR")" != "${CONSUL_UID}" ]; then
     chown ${CONSUL_UID}:${CONSUL_GID} "$CONSUL_CONFIG_DIR"
+    echo "chown2"
   fi
 
   # If requested, set the capability to bind to privileged ports before
@@ -109,6 +113,7 @@ if [ "$1" = 'consul' -a -z "${CONSUL_DISABLE_PERM_MGMT+x}" ]; then
   fi
 
   set -- su-exec ${CONSUL_UID}:${CONSUL_GID} "$@"
+  echo "set su-exec"
 fi
 
 exec "$@"

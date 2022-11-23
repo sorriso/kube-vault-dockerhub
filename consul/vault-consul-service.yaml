@@ -46,5 +46,3 @@ spec:
     - name: consuldns
       port: 8600
       targetPort: 8600
-  selector:
-    app: consul

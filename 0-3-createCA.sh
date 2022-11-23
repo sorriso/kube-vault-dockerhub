@@ -4,33 +4,8 @@ echo ".        Creating CA"
 
 cd certs
 
-cd subca
-rm -f *.key
-rm -f *.pem
-rm -f *.crt
-rm -f *.csr
-rm -f *.srl
 
-
-cd ..
-cd subca-consul
-rm -f *.key
-rm -f *.pem
-rm -f *.crt
-rm -f *.csr
-rm -f *.srl
-
-
-cd ..
-cd subca-vault
-rm -f *.key
-rm -f *.pem
-rm -f *.crt
-rm -f *.csr
-rm -f *.srl
-
-cd ..
-cd cluster
+cd subca-auth
 rm -f *.key
 rm -f *.pem
 rm -f *.crt
@@ -39,13 +14,71 @@ rm -f *.srl
 rm -f *.txt
 
 cd ..
-cd edge
+cd subca-cert
+rm -f *.key
+rm -f *.pem
+rm -f *.crt
+rm -f *.csr
+rm -f *.srl
+
+
+cd ..
+cd subca-cert-consul
+rm -f *.key
+rm -f *.pem
+rm -f *.crt
+rm -f *.csr
+rm -f *.srl
+
+
+cd ..
+cd subca-cert-vault
+rm -f *.key
+rm -f *.pem
+rm -f *.crt
+rm -f *.csr
+rm -f *.srl
+
+
+cd ..
+cd subca-cluster
 rm -f *.key
 rm -f *.pem
 rm -f *.crt
 rm -f *.csr
 rm -f *.srl
 rm -f *.txt
+
+
+cd ..
+cd subca-edge
+rm -f *.key
+rm -f *.pem
+rm -f *.crt
+rm -f *.csr
+rm -f *.srl
+rm -f *.txt
+
+
+cd ..
+cd subca-frontoffice
+rm -f *.key
+rm -f *.pem
+rm -f *.crt
+rm -f *.csr
+rm -f *.srl
+rm -f *.txt
+
+
+cd ..
+cd subca-nac
+rm -f *.key
+rm -f *.pem
+rm -f *.crt
+rm -f *.csr
+rm -f *.srl
+rm -f *.txt
+
 
 cd ..
 cd ca

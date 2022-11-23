@@ -7,8 +7,8 @@ echo ".      Running 0-2-getSSLtools.sh"
 echo ".      Running 0-3-createCA.sh"
 ./0-3-createCA.sh
 
-echo ".      Running 0-4-createSubCA_sec.sh"
-./0-4-createSubCA_sec.sh
+echo ".      Running 0-4-createSubCAs.sh"
+./0-4-createSubCAs.sh
 
 echo ".      Running 0-5-createCerts.sh"
 ./0-5-createCerts.sh

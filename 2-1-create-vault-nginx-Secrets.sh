@@ -11,5 +11,5 @@ echo ".        Creating vault nginx secret"
 
 kubectl create secret generic vault-nginx-secret-tls -n vault-ns \
 --from-file="SSL_CA_BUNDLE=./certs/ca/ca.pem" \
---from-file="SSL_CERT_BUNDLE=./certs/subca-vault/bundle.pem" \
---from-file="SSL_KEY=./certs/subca-vault/vault-key.pem"
+--from-file="SSL_CERT_BUNDLE=./certs/subca-cert-vault/bundle.pem" \
+--from-file="SSL_KEY=./certs/subca-cert-vault/vault-key.pem"

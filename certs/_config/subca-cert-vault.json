@@ -10,8 +10,8 @@
           "C": "FR",
           "L": "TLS",
           "O": "WorldCompany",
-          "OU": "subCA",
-          "ST": "cert"
+          "OU": "cert",
+          "ST": "31"
           }
       ],
   "hosts":

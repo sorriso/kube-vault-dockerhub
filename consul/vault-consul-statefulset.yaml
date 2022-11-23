@@ -1,4 +1,5 @@
 # kubectl -n vault-ns exec -it consul-0 -- /bin/sh
+# kubectl -n vault-ns logs consul-0
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -28,14 +29,25 @@ spec:
         role: server
     spec:
       serviceAccountName: consul
+
       securityContext:
         fsGroup: 1000
 #        runAsUser: 100
 #        runAsGroup: 1000
+#        fsGroupChangePolicy: "OnRootMismatch"
+
       containers:
       - name: consul
-        image: l_consul:latest-1.14.0_ubi8_8.7-923
+        image: l_consul:latest
         imagePullPolicy: Never
+
+
+#        securityContext:
+#            privileged: false
+#            allowPrivilegeEscalation: false
+#            capabilities:
+#                drop: ["all"]
+#                add: ["CAP_CHOWN", "CAP_FOWNER"]
 
         env:
 
