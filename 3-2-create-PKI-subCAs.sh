@@ -124,9 +124,30 @@ echo ""
 echo "configuring roles"
 echo ""
 
+case $pkiName in
+  "auth")
+    domain="cluster.local"
+    ;;
+  "cert")
+    domain="cluster.local"
+    ;;
+  "cluster")
+    domain="cluster.local"
+    ;;
+  "edge")
+    domain="kube.local"
+    ;;
+  "nac")
+    domain="nac.local"
+    ;;
+  *)
+    domain="kube.local"
+    ;;
+esac
+
 tee payload-pki_$pkiName-role.json <<EOF
 {
-  "allowed_domains": "cluster.local",
+  "allowed_domains": "$domain",
   "allow_subdomains": true,
   "issuer_ref": "pki_$pkiName-intermediate",
   "max_ttl": "720h"
@@ -191,7 +212,5 @@ createSubPKIinVault $VAULT_TOKEN $VAULT_ADDR "cert"
 createSubPKIinVault $VAULT_TOKEN $VAULT_ADDR "cluster"
 
 createSubPKIinVault $VAULT_TOKEN $VAULT_ADDR "edge"
-
-createSubPKIinVault $VAULT_TOKEN $VAULT_ADDR "frontoffice"
 
 createSubPKIinVault $VAULT_TOKEN $VAULT_ADDR "nac"

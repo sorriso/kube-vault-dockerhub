@@ -28,7 +28,7 @@ echo ""
 
 tee payload-issuer-$pkiName.json <<EOF
 {
-  "policy": "path \"$pkiName/*\" { capabilities = [\"create\", \"read\", \"update\", \"delete\", \"list\", \"sudo\"] }"
+  "policy": "path \"pki_$pkiName/*\" { capabilities = [\"create\", \"read\", \"update\", \"delete\", \"list\", \"sudo\"] }"
 }
 EOF
 
@@ -172,7 +172,7 @@ metadata:
     layer: pki-$pkiName
 spec:
   vault:
-    path: pki_sec/sign/pki_$pkiName-role
+    path: pki_$pkiName/sign/pki_$pkiName-role
     server: https://vault-service
     caBundle: $CABUNDLE
     auth:
