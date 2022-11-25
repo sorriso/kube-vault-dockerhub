@@ -6,13 +6,13 @@ if [ -f env ]; then
     export $(cat env | grep -v '#' | sed 's/\r$//' | awk '/=/ {print $1}' )
 fi
 
-nerdctl -n k8s.io pull nginx:${VERSION}
+nerdctl -n k8s.io pull nginx:${NGINX_VERSION}
 
 cp ../../certs/ca/ca.pem .
 
 nerdctl build \
    --no-cache \
-   --build-arg ARG_VERSION=${VERSION} \
+   --build-arg NGINX_VERSION=${NGINX_VERSION} \
    --namespace k8s.io \
    -t l_nginx:latest .
 

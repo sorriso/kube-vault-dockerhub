@@ -179,10 +179,40 @@ echo ""
 echo "requesting certificate"
 echo ""
 
+case $pkiName in
+  "auth")
+    mycert="test1.cluster.local"
+    ;;
+  "cert")
+    mycert="test2.cluster.local"
+    ;;
+  "cluster")
+    mycert="test3.cluster.local"
+    ;;
+  "edge")
+    mycert="test4.kube.local"
+    ;;
+  "nac")
+    mycert="test5.nac.local"
+    ;;
+  *)
+    mycert="test.kube.local"
+    ;;
+esac
+
+tee payload-pki_$pkiName-cert.json <<EOF
+{
+  "common_name": "$mycert",
+  "ttl": "24h"
+}
+EOF
+
 curl -k --header "X-Vault-Token: $VAULT_TOKEN" \
     --request POST \
-    --data '{"common_name": "test.cluster.local", "ttl": "24h"}' \
+    --data @payload-pki_$pkiName-cert.json \
     $VAULT_ADDR/v1/pki_$pkiName/issue/pki_$pkiName-role | jq   > test-cert.json
+
+rm -f ./payload-pki_$pkiName-cert.json
 
 ISSUER=$(cat ./test-cert.json | jq -r ".data.issuing_ca")
 CAISSUER=$(cat ./certs/ca/ca.pem)

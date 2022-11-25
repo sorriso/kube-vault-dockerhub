@@ -32,4 +32,10 @@ echo ".        Creating certs subCA vault"
 
 createCert "subca-cert-vault" "subca-cert" "vault"
 
+echo ".        Creating certs subCA Simple"
+
+createCert "subca-cert-simple" "subca-cert" "simple"
+
+cd ..
+
 cd ..

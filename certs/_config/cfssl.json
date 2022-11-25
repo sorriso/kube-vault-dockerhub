@@ -41,6 +41,16 @@
             "server auth"
         ],
         "expiry": "8760h"
+      },
+      "simple": {
+        "usages": [
+            "signing",
+            "digital signature",
+            "key encipherment",
+            "client auth",
+            "server auth"
+        ],
+        "expiry": "8760h"
       }
     }
   }

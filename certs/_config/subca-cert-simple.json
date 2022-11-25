@@ -1,0 +1,26 @@
+{
+  "CN": "simple",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names":
+      [
+          {
+          "C": "FR",
+          "L": "TLS",
+          "O": "WorldCompany",
+          "OU": "cert",
+          "ST": "31"
+          }
+      ],
+  "hosts":
+      [
+          "simple.kube.local",
+          "simple-nginx-service.simple-ns.svc.cluster.local",
+          "simple-service.simple-ns.svc.cluster.local",
+          "simple.simple-ns.cluster.local",
+          "simple-service",
+          "127.0.0.1"
+      ]
+}

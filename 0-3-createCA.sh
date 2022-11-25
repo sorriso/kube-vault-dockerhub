@@ -12,6 +12,7 @@ rm -f *.crt
 rm -f *.csr
 rm -f *.srl
 rm -f *.txt
+rm -f *.json
 
 cd ..
 cd subca-cert
@@ -20,7 +21,8 @@ rm -f *.pem
 rm -f *.crt
 rm -f *.csr
 rm -f *.srl
-
+rm -f *.txt
+rm -f *.json
 
 cd ..
 cd subca-cert-consul
@@ -29,7 +31,8 @@ rm -f *.pem
 rm -f *.crt
 rm -f *.csr
 rm -f *.srl
-
+rm -f *.txt
+rm -f *.json
 
 cd ..
 cd subca-cert-vault
@@ -38,7 +41,8 @@ rm -f *.pem
 rm -f *.crt
 rm -f *.csr
 rm -f *.srl
-
+rm -f *.txt
+rm -f *.json
 
 cd ..
 cd subca-cluster
@@ -48,7 +52,8 @@ rm -f *.crt
 rm -f *.csr
 rm -f *.srl
 rm -f *.txt
-
+rm -f *.txt
+rm -f *.json
 
 cd ..
 cd subca-edge
@@ -58,17 +63,8 @@ rm -f *.crt
 rm -f *.csr
 rm -f *.srl
 rm -f *.txt
-
-
-cd ..
-cd subca-frontoffice
-rm -f *.key
-rm -f *.pem
-rm -f *.crt
-rm -f *.csr
-rm -f *.srl
 rm -f *.txt
-
+rm -f *.json
 
 cd ..
 cd subca-nac
@@ -78,7 +74,8 @@ rm -f *.crt
 rm -f *.csr
 rm -f *.srl
 rm -f *.txt
-
+rm -f *.txt
+rm -f *.json
 
 cd ..
 cd ca
@@ -87,6 +84,8 @@ rm -f *.pem
 rm -f *.crt
 rm -f *.csr
 rm -f *.srl
+rm -f *.txt
+rm -f *.json
 
 ../_tools/cfssl gencert -initca ../_config/ca.json | ../_tools/cfssljson -bare ca
 rm -f *.csr
