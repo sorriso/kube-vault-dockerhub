@@ -35,16 +35,13 @@ echo ".        Creating subCA"
 
 cd certs
 
-createCA "subca-auth"
-
-createCA "subca-cert"
-
 cd subca-cert-consul
 rm -f *.key
 rm -f *.pem
 rm -f *.crt
 rm -f *.csr
 rm -f *.srl
+rm -f *.txt
 cd ..
 
 
@@ -54,13 +51,16 @@ rm -f *.pem
 rm -f *.crt
 rm -f *.csr
 rm -f *.srl
+rm -f *.txt
 cd ..
+
+createCA "subca-auth"
+
+createCA "subca-cert"
 
 createCA "subca-cluster"
 
 createCA "subca-edge"
-
-createCA "subca-frontoffice"
 
 createCA "subca-nac"
 
